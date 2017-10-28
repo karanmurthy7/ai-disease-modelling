@@ -88,7 +88,11 @@ class PopulationState:
         '''This computes a new state resulting from a legal move.'''
         wash_hands = habits[0]
         sleep_well = habits[1]
-            
+        for person in self.people_list:
+            if person.sickness_status:
+                print('Person is sick')
+            else:
+                print('Person is healthy')
         return new_state     
 
 # </COMMON_CODE>
