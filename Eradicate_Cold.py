@@ -43,12 +43,12 @@ class PopulationState:
     def __str__(self):
         # Produces a textual description of a state.
         text = "Population Count = " + str(self.population_count) + "\n"
-        text += "Sick People Count / Percentage = " +
-         str(self.sick_people_count) + " / " + 
-         calc_percentage(self.sick_people_count, self.population_count) + "%\n"
-        text += "Healthy People Count / Percentage = " +
-         str(self.healthy_people_count) + " / " + 
-         calc_percentage(self.healthy_people_count, self.population_count) + "%\n"
+        text += "Sick People Count / Percentage = " 
+        + str(self.sick_people_count) + " / " 
+        + calc_percentage(self.sick_people_count, self.population_count) + "%\n"
+        text += "Healthy People Count / Percentage = " 
+        + str(self.healthy_people_count) + " / " 
+        + calc_percentage(self.healthy_people_count, self.population_count) + "%\n"
         return text    
 
 # </COMMON_CODE>
