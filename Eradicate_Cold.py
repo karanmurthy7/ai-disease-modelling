@@ -27,5 +27,28 @@ This is a model that aims to eradicate cold from the world.
 # people who die after every week.
 class PopulationState:
     
+    def __init__(self, population_count, sick_people_count, death_count, birth_count):
+        self.population_count = population_count
+        self.sick_people_count = sick_people_count
+        self.death_count = death_count
+        self.birth_count = birth_count
+        self.healthy_people_count = population_count - sick_people_count
+        
+    def __hash__(self):
+        return (self.__str__()).__hash__()
+    
+    def calc_percentage(num, total):
+        return str((num / total) * 100)
+    
+    def __str__(self):
+        # Produces a textual description of a state.
+        text = "Population Count = " + str(self.population_count) + "\n"
+        text += "Sick People Count / Percentage = " +
+         str(self.sick_people_count) + " / " + 
+         calc_percentage(self.sick_people_count, self.population_count) + "%\n"
+        text += "Healthy People Count / Percentage = " +
+         str(self.healthy_people_count) + " / " + 
+         calc_percentage(self.healthy_people_count, self.population_count) + "%\n"
+        return text    
 
 # </COMMON_CODE>
