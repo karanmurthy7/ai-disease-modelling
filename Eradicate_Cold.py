@@ -170,7 +170,7 @@ class PopulationState:
                 # Assume People have 21 interactions a week, with standard deviation 6
                 num_interactions = math.floor(random.gauss(21, 6))
                 sick_percent = new_state.get_sick_percent()
-                sick_interactions = math.ceil(num_interactions * sick_percent/100)
+                sick_interactions = math.ceil(num_interactions * sick_percent / 100)
 
                 recovery_probability = 1 - risk_factor ** sick_interactions
                 if recovery_probability < RECOVERY_THRESHOLD:
