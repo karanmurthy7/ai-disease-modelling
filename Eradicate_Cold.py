@@ -69,20 +69,23 @@ class PopulationState:
     def __hash__(self):
         return (self.__str__()).__hash__()
     
-    def calc_percentage(num, total):
+    def calc_percentage(self, num, total):
         return str((num / total) * 100)
     
     def __str__(self):
         # Produces a textual description of a state.
-        text = "Population Count = " + str(self.population_count) + "\n"
+        print(type(self.population_count))
+        print(type(self.sick_people_count))
 
-        text += "Sick People Count / Percentage = " +\
+        text = "Population Count = " + str(self.population_count)
+
+        text += "\nSick People Count / Percentage = " +\
                 str(self.sick_people_count) + " / " +\
-                self.calc_percentage(self.sick_people_count, self.population_count) + "%\n"
+                self.calc_percentage(self.sick_people_count, self.population_count)
 
-        text += "Healthy People Count / Percentage = " +\
+        text += "\nHealthy People Count / Percentage = " +\
                 str(self.healthy_people_count) + " / " +\
-                self.calc_percentage(self.healthy_people_count, self.population_count) + "%\n"
+                self.calc_percentage(self.healthy_people_count, self.population_count)
         return text
     
     def __eq__(self, state2):
@@ -128,9 +131,9 @@ class PopulationState:
                 #sick_people_count += 1
             else:
                 print('Person is healthy')
-                num_interactions = random.gauss(21,6)
-                sick_percent = self.calc_percentage(self.sick_people_count, self.population_count)
-                sick_interactions = num_interactions*sick_percent
+                num_interactions = math.floor(random.gauss(21,6))
+                sick_percent = float(self.calc_percentage(self.sick_people_count, self.population_count))
+                sick_interactions = math.floor(num_interactions*sick_percent)
 
 
                 recovery_probability = 1 - risk_factor ** sick_interactions
@@ -143,7 +146,7 @@ class PopulationState:
         # recover at the end of every week. This is randomized
         # to ensure that a particular pattern is not followed everytime.
         recovered_people_count = math.floor(sick_people_count/2)
-        for i in range(0, len(recovered_people_count)):
+        for i in range(0, recovered_people_count):
             random_number = random.randint(0, len(people_list))
             if people_list[random_number].is_sick:
                 people_list[random_number] = Person(False)
@@ -166,6 +169,32 @@ class PopulationState:
                    
         new_state = self.copy(len(people_list), sick_people_count, people_list)
         return new_state
+
+def goal_test(s):
+    '''If More than 99% of the population is affected'''
+    percent = s.calc_percentage(s.sick_people_count,s.population_count)
+    if float(percent) > 99:
+        return True
+    else:
+        return False
+
+
+def goal_message(s):
+    return "The World Has Changed Forever!"
+
+class Operator:
+    def __init__(self, name, precond, state_transf):
+        self.name = name
+        self.precond = precond
+        self.state_transf = state_transf
+
+    def is_applicable(self, s):
+        return self.precond(s)
+
+    def apply(self, s):
+        return self.state_transf(s)
+
+
 # </COMMON_CODE>
 
 
@@ -173,16 +202,23 @@ class PopulationState:
 # </COMMON_DATA>
 
 # <INITIAL_STATE>
+DEFAULT_POPULATION = 3
+DEFAULT_SICK_COUNT = 1
+CREATE_INITIAL_STATE = lambda : PopulationState(DEFAULT_POPULATION, DEFAULT_SICK_COUNT)
 # </INITIAL_STATE>
 
 # <OPERATORS>
+HABITS = [(1,1), (1,-1), (-1,1), (-1,-1)]
+OPERATORS = [Operator("WASH HANDS? " + str(wash) + " \nSLEEP WELL?" + str(sleep),
+                      lambda s: s.can_move(),
+                      lambda s, h = (wash, sleep): s.move(h))
+             for (wash, sleep) in HABITS]
 # </OPERATORS>
 
 # <GOAL_TEST> (optional)
-#GOAL_TEST = lambda s: goal_test(s)
+GOAL_TEST = lambda s: goal_test(s)
 # </GOAL_TEST>
 
 # <GOAL_MESSAGE_FUNCTION> (optional)
 #GOAL_MESSAGE_FUNCTION = lambda s: goal_message(s)
 # </GOAL_MESSAGE_FUNCTION>
-
