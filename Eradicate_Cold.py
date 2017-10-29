@@ -32,7 +32,7 @@ EFFECT_WASHING_HANDS = 0.1
 # a person getting sick by 5%.
 EFFECT_SLEEPING_WELL = 0.05
 
-SICKNESS_THRESHOLD = 0.80
+RECOVERY_THRESHOLD = 0.80
 YEARLY_POPULATION_GROWTH_RATE = 0.012
 NUMBER_OF_YEARS = 10
 POPULATION_GROWTH_RATE = math.exp(YEARLY_POPULATION_GROWTH_RATE * NUMBER_OF_YEARS)
@@ -120,11 +120,11 @@ class PopulationState:
             else:
                 print('Person is healthy')
                 sick_interactions = random.randint(1, 10)
-                sickness_probability = 1 - risk_factor ** sick_interactions
-                if sickness_probability > SICKNESS_THRESHOLD:
-                    diagnosed_people_count += 1
-                else:
+                recovery_probability = 1 - risk_factor ** sick_interactions
+                if sickness_probability > RECOVERY_THRESHOLD:
                     healthy_people_count += 1
+                else:
+                    diagnosed_people_count += 1
                 
         # Code that assumes that half of the sick people
         # recover at the end of every week.
