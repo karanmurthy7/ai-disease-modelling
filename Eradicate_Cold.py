@@ -33,14 +33,14 @@ EFFECT_WASHING_HANDS = 0.1
 # a person getting sick by 5%.
 EFFECT_SLEEPING_WELL = 0.05
 
-
+#
 RECOVERY_THRESHOLD = 0.80
 
-
+#
 YEARLY_POPULATION_GROWTH_RATE = 0.012
 NUMBER_OF_YEARS = 10
 POPULATION_GROWTH_RATE = math.floor(math.exp(YEARLY_POPULATION_GROWTH_RATE * NUMBER_OF_YEARS))
-
+#
 MORTALITY_RATE = 0.0095
 
 class Person:
@@ -77,12 +77,12 @@ class PopulationState:
         text = "Population Count = " + str(self.population_count) + "\n"
 
         text += "Sick People Count / Percentage = " +\
-        + str(self.sick_people_count) + " / " +\
-        + self.calc_percentage(self.sick_people_count, self.population_count) + "%\n"
+                str(self.sick_people_count) + " / " +\
+                self.calc_percentage(self.sick_people_count, self.population_count) + "%\n"
 
-        text += "Healthy People Count / Percentage = "
-        + str(self.healthy_people_count) + " / " +\
-        + self.calc_percentage(self.healthy_people_count, self.population_count) + "%\n"
+        text += "Healthy People Count / Percentage = " +\
+                str(self.healthy_people_count) + " / " +\
+                self.calc_percentage(self.healthy_people_count, self.population_count) + "%\n"
         return text
     
     def __eq__(self, state2):
@@ -116,18 +116,22 @@ class PopulationState:
         '''This computes a new state resulting from a legal move.'''
         wash_hands = habits[0]
         sleep_well = habits[1]
-        risk_factor = BASE_RISK_FACTOR + EFFECT_WASHING_HANDS * wash_hands 
-        + EFFECT_SLEEPING_WELL * sleep_well
-        sick_people_count = 0
+        risk_factor = BASE_RISK_FACTOR + EFFECT_WASHING_HANDS * wash_hands \
+                      + EFFECT_SLEEPING_WELL * sleep_well
+        sick_people_count
         people_list = self.people_list
         
         for i in range(0, len(people_list)):
             if people_list[i].is_sick:
                 print('Person is sick')
-                sick_people_count += 1
+                newly_sick_people_count += 1
             else:
                 print('Person is healthy')
-                sick_interactions = random.randint(1, 10)
+                num_interactions = random.gauss(21,6)
+                sick_percent = self.calc_percentage(self.sick_people_count, self.population_count)
+                sick_interactions = num_interactions*sick_percent
+
+
                 recovery_probability = 1 - risk_factor ** sick_interactions
                 if recovery_probability < RECOVERY_THRESHOLD:
                     # Classify the person as sick if his/her
@@ -160,6 +164,24 @@ class PopulationState:
                 sick_people_count += 1
                    
         new_state = self.copy(len(people_list), sick_people_count, people_list)
-        return new_state     
-
+        return new_state
 # </COMMON_CODE>
+
+
+# <COMMON_DATA>
+# </COMMON_DATA>
+
+# <INITIAL_STATE>
+# </INITIAL_STATE>
+
+# <OPERATORS>
+# </OPERATORS>
+
+# <GOAL_TEST> (optional)
+#GOAL_TEST = lambda s: goal_test(s)
+# </GOAL_TEST>
+
+# <GOAL_MESSAGE_FUNCTION> (optional)
+#GOAL_MESSAGE_FUNCTION = lambda s: goal_message(s)
+# </GOAL_MESSAGE_FUNCTION>
+
