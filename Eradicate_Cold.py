@@ -74,8 +74,6 @@ class PopulationState:
     
     def __str__(self):
         # Produces a textual description of a state.
-        print(type(self.population_count))
-        print(type(self.sick_people_count))
 
         text = "Population Count = " + str(self.population_count)
 
@@ -96,6 +94,8 @@ class PopulationState:
         
         return False
     
+
+
     def can_move(self):
         '''This tests whether the move is legal.
             A move is legal as long as the count of healthy
@@ -105,11 +105,11 @@ class PopulationState:
             return True
         return False
     
-    def copy(self, population_count, sick_people_count, people_list):
+    def copy(self):
         # Used to construct deep copies
-        new_state = PopulationState(population_count, 
-                                    sick_people_count,
-                                    people_list)
+        new_state = PopulationState(self.population_count,
+                                    self.sick_people_count,
+                                    self.people_list)
         return new_state
     
     # habits is essentially a tuple containing variables (1,-1)
@@ -220,5 +220,5 @@ GOAL_TEST = lambda s: goal_test(s)
 # </GOAL_TEST>
 
 # <GOAL_MESSAGE_FUNCTION> (optional)
-#GOAL_MESSAGE_FUNCTION = lambda s: goal_message(s)
+GOAL_MESSAGE_FUNCTION = lambda s: goal_message(s)
 # </GOAL_MESSAGE_FUNCTION>
