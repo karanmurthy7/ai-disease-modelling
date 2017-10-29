@@ -118,13 +118,14 @@ class PopulationState:
         sleep_well = habits[1]
         risk_factor = BASE_RISK_FACTOR + EFFECT_WASHING_HANDS * wash_hands \
                       + EFFECT_SLEEPING_WELL * sleep_well
-        sick_people_count
+
+        sick_people_count = self.sick_people_count
         people_list = self.people_list
         
         for i in range(0, len(people_list)):
             if people_list[i].is_sick:
                 print('Person is sick')
-                newly_sick_people_count += 1
+                #sick_people_count += 1
             else:
                 print('Person is healthy')
                 num_interactions = random.gauss(21,6)
