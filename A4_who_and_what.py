@@ -86,16 +86,16 @@ Team:
 
 # Change the following to represent your own information:
 
-maggie = Partner("Smith", "Margaret", "maggiesmith99")
-john = Partner("Doe", "John", "jd007")
-team = [maggie, john]
+vibes = Partner("Rangarajan", "Vaibhavi", "vaibhavi")
+karan = Partner("Murthy", "Karan", "karan7")
+team = [karan, vibes]
 
-problem1 = Problem("Ending World Poverty", 'wicked', "End_Poverty")
- # In this case, the Python file for the formulation would be named End_Poverty.py.
+problem1 = Problem("Eradicating Common Cold", 'wicked', "Eradicate_Cold")
+ # In this case, the Python file for the formulation would be named Eradicate_Cold.py.
 
 problems = [problem1]
 
-our_submission = Who_and_what([maggie, john], OPTION_A, problems)
+our_submission = Who_and_what([karan, vibes], OPTION_A, problems)
 # Legal options are OPTION_A, OPTION_B, OPTION_C3, or OPTION_C2PLUS
 
 # You can run this file from the command line by typing:

@@ -33,16 +33,19 @@ EFFECT_WASHING_HANDS = 0.1
 # a person getting sick by 5%.
 EFFECT_SLEEPING_WELL = 0.05
 
+
 RECOVERY_THRESHOLD = 0.80
+
+
 YEARLY_POPULATION_GROWTH_RATE = 0.012
 NUMBER_OF_YEARS = 10
 POPULATION_GROWTH_RATE = math.floor(math.exp(YEARLY_POPULATION_GROWTH_RATE * NUMBER_OF_YEARS))
+
 MORTALITY_RATE = 0.0095
+
 class Person:
-    
     def __init__(self, is_sick):
         self.is_sick = is_sick
-
 
 # This class PopulationState holds metrics such as  
 # population count, count of sick people, count of healthy people,
@@ -54,7 +57,8 @@ class PopulationState:
         self.population_count = population_count
         self.sick_people_count = sick_people_count
         self.healthy_people_count = population_count - sick_people_count
-        self.people_list = []
+        self.people_list = people_list
+
         if people_list == []:
             for i in range(0, sick_people_count):
                 self.people_list.append(Person(True))
@@ -71,12 +75,14 @@ class PopulationState:
     def __str__(self):
         # Produces a textual description of a state.
         text = "Population Count = " + str(self.population_count) + "\n"
-        text += "Sick People Count / Percentage = " 
-        + str(self.sick_people_count) + " / " 
-        + calc_percentage(self.sick_people_count, self.population_count) + "%\n"
-        text += "Healthy People Count / Percentage = " 
-        + str(self.healthy_people_count) + " / " 
-        + calc_percentage(self.healthy_people_count, self.population_count) + "%\n"
+
+        text += "Sick People Count / Percentage = " +\
+        + str(self.sick_people_count) + " / " +\
+        + self.calc_percentage(self.sick_people_count, self.population_count) + "%\n"
+
+        text += "Healthy People Count / Percentage = "
+        + str(self.healthy_people_count) + " / " +\
+        + self.calc_percentage(self.healthy_people_count, self.population_count) + "%\n"
         return text
     
     def __eq__(self, state2):
