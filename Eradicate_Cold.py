@@ -34,7 +34,7 @@ EFFECT_WASHING_HANDS = 0.1
 EFFECT_SLEEPING_WELL = 0.05
 
 #
-RECOVERY_THRESHOLD = 0.80
+RECOVERY_THRESHOLD = 0.90
 
 #
 YEARLY_POPULATION_GROWTH_RATE = 0.012
@@ -95,12 +95,12 @@ class PopulationState:
 
         text = "Population Count = " + str(self.population_count)
 
-        text += "\nSick People Count / Percentage = " +\
-                str(self.sick_people_count) + " / " +\
+        text += "\nSick People Count / Percentage = " + \
+                str(self.sick_people_count) + " / " + \
                 str(self.calc_percentage(self.sick_people_count, self.population_count))
 
-        text += "\nHealthy People Count / Percentage = " +\
-                str(self.healthy_people_count) + " / " +\
+        text += "\nHealthy People Count / Percentage = " + \
+                str(self.healthy_people_count) + " / " + \
                 str(self.calc_percentage(self.healthy_people_count, self.population_count))
         return text
     
@@ -136,60 +136,60 @@ class PopulationState:
         '''This computes a new state resulting from a legal move.'''
 
         new_state = self.copy()
-        #Assume that these habits are prevalent across the whole world
+        # Assume that these habits are prevalent across the whole world
         wash_hands = habits[0]
         sleep_well = habits[1]
 
-        #Common Risk Factor based on global habits
+        # Common Risk Factor based on global habits
         risk_factor = BASE_RISK_FACTOR + (EFFECT_WASHING_HANDS * wash_hands) \
                       + (EFFECT_SLEEPING_WELL * sleep_well)
 
 
-        #PART 0: Keep track of sick and healthy count before any process
+        # PART 0: Keep track of sick and healthy count before any process
         new_sick_count = new_state.sick_people_count
         new_healthy_count = new_state.healthy_people_count
 
 
-        #PART 1 : Some sick people recover
+        # PART 1 : Some sick people recover
         # Code that assumes that half of the sick people
         # recover at the end of every week. This is randomized
         # to ensure that a particular pattern is not followed everytime.
-        recovered_count = math.ceil(new_state.sick_people_count/2)
+        recovered_count = math.ceil(new_state.sick_people_count / 2)
 
-        #Update sick and healthy counts due to Recovery
+        # Update sick and healthy counts due to Recovery
         new_sick_count -= recovered_count
-        new_healthy_count +=recovered_count
+        new_healthy_count += recovered_count
 
-        #PART 2 : Some healthy people get infected
+        # PART 2 : Some healthy people get infected
         infected_count = 0
         for i in range(0, new_state.healthy_people_count):
-                #Assume People have 21 interactions a week, with standard deviation 6
-                num_interactions = math.floor(random.gauss(21,6))
+                # Assume People have 21 interactions a week, with standard deviation 6
+                num_interactions = math.floor(random.gauss(21, 6))
                 sick_percent = new_state.get_sick_percent()
-                sick_interactions = math.floor(num_interactions*sick_percent)
+                sick_interactions = math.floor(num_interactions * sick_percent)
 
                 recovery_probability = 1 - risk_factor ** sick_interactions
                 if recovery_probability < RECOVERY_THRESHOLD:
                     # Classify the person as sick if his/her
                     # recovery probability is less than the threshold.
-                    infected_count+=1
+                    infected_count += 1
 
-        #Update sick and healthy counts due to Infection
+        # Update sick and healthy counts due to Infection
         new_sick_count += infected_count
-        new_healthy_count -= recovered_count
+        new_healthy_count -= infected_count
 
 
-        #PART 3 : Some people die (Healthy or sick, doesn't matter)
-        death_count = math.ceil(new_state.population_count * MORTALITY_RATE) #CEIL instead of Floor, so that minimum 1 person dies
+        # PART 3 : Some people die (Healthy or sick, doesn't matter)
+        death_count = math.ceil(new_state.population_count * MORTALITY_RATE)  # CEIL instead of Floor, so that minimum 1 person dies
         who_dies = set()
-        sick_died =0
-        healthy_died =0
+        sick_died = 0
+        healthy_died = 0
         while(len(who_dies) < death_count):
-            index = random.randint(0, new_state.population_count-1)   # if no -1, index out of bounds
-            if who_dies.__contains__(index) ==False:
-                if new_state.people_list[index] ==True:
-                    sick_died+=1
-                else: healthy_died +=1
+            index = random.randint(0, new_state.population_count - 1)  # if no -1, index out of bounds
+            if who_dies.__contains__(index) == False:
+                if new_state.people_list[index] == True:
+                    sick_died += 1
+                else: healthy_died += 1
                 who_dies.add(index)
 
         # Update sick and healthy counts due to Death
@@ -197,7 +197,7 @@ class PopulationState:
         new_healthy_count -= healthy_died
 
 
-        #PART 4 : Some healthy people are born
+        # PART 4 : Some healthy people are born
         birth_count = math.ceil(new_state.population_count * YEARLY_POPULATION_GROWTH_RATE)
 
         # Update healthy counts due to Birth
@@ -218,7 +218,7 @@ class PopulationState:
 
 def goal_test(s):
     '''If More than 99% of the population is affected'''
-    sick_percent = s.calc_percentage(s.sick_people_count,s.population_count)
+    sick_percent = s.calc_percentage(s.sick_people_count, s.population_count)
     if float(sick_percent) > 99 or float(sick_percent) < 1:
         return True
     else:
@@ -248,16 +248,16 @@ class Operator:
 # </COMMON_DATA>
 
 # <INITIAL_STATE>
-DEFAULT_POPULATION = 3
-DEFAULT_SICK_COUNT = 1
+DEFAULT_POPULATION = 100
+DEFAULT_SICK_COUNT = 40
 CREATE_INITIAL_STATE = lambda : PopulationState(DEFAULT_POPULATION, DEFAULT_SICK_COUNT)
 # </INITIAL_STATE>
 
 # <OPERATORS>
-HABITS = [(1,1), (1,-1), (-1,1), (-1,-1)]
+HABITS = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
 OPERATORS = [Operator("WASH HANDS? " + str(wash) + " \nSLEEP WELL?" + str(sleep),
                       lambda s: s.can_move(),
-                      lambda s, h = (wash, sleep): s.move(h))
+                      lambda s, h=(wash, sleep): s.move(h))
              for (wash, sleep) in HABITS]
 # </OPERATORS>
 
