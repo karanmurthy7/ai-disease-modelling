@@ -154,7 +154,7 @@ class PopulationState:
         # Code that assumes that half of the sick people
         # recover at the end of every week. This is randomized
         # to ensure that a particular pattern is not followed everytime.
-        recovered_count = math.floor(new_state.sick_people_count/2)
+        recovered_count = math.ceil(new_state.sick_people_count/2)
 
         #Update sick and healthy counts due to Recovery
         new_sick_count -= recovered_count
@@ -198,9 +198,10 @@ class PopulationState:
 
 
         #PART 4 : Some healthy people are born
-        birth_count = math.ceil(new_state.population_count * POPULATION_GROWTH_RATE)
+        birth_count = math.ceil(new_state.population_count * YEARLY_POPULATION_GROWTH_RATE)
+
         # Update healthy counts due to Birth
-        new_healthy_count +=birth_count
+        new_healthy_count += birth_count
 
 
         # PART 5 : Reset New State's Healthy count, Sick count, population, and people list based on recovery, infection, birth and death
@@ -217,8 +218,8 @@ class PopulationState:
 
 def goal_test(s):
     '''If More than 99% of the population is affected'''
-    percent = s.calc_percentage(s.sick_people_count,s.population_count)
-    if float(percent) > 99 or float(percent) < 1:
+    sick_percent = s.calc_percentage(s.sick_people_count,s.population_count)
+    if float(sick_percent) > 99 or float(sick_percent) < 1:
         return True
     else:
         return False
