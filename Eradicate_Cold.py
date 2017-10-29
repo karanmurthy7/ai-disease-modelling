@@ -43,6 +43,10 @@ POPULATION_GROWTH_RATE = math.floor(math.exp(YEARLY_POPULATION_GROWTH_RATE * NUM
 #
 MORTALITY_RATE = 0.0095
 
+# Boolean variable to display the message depending
+# on whether the virus or treatment won.
+HAS_VIRUS_WON = False
+
 class Person:
     def __init__(self, is_sick):
         self.is_sick = is_sick
@@ -219,14 +223,23 @@ class PopulationState:
 def goal_test(s):
     '''If More than 90% of the population is affected'''
     sick_percent = s.calc_percentage(s.sick_people_count, s.population_count)
-    if float(sick_percent) > 90 or float(sick_percent) < 10:
+    global HAS_VIRUS_WON
+    if float(sick_percent) > 90:
+        HAS_VIRUS_WON = True
+        return True
+    elif float(sick_percent) < 10:
+        HAS_VIRUS_WON = False
         return True
     else:
         return False
 
 
 def goal_message(s):
-    return "The World Has Changed Forever!"
+    if HAS_VIRUS_WON:
+        message = "Cold has taken over the world!"
+    else:
+        message = "With cold under control, the World is a better place to live."
+    return message
 
 class Operator:
     def __init__(self, name, precond, state_transf):
@@ -248,8 +261,8 @@ class Operator:
 # </COMMON_DATA>
 
 # <INITIAL_STATE>
-DEFAULT_POPULATION = 50000
-DEFAULT_SICK_COUNT = 17000
+DEFAULT_POPULATION = 5000
+DEFAULT_SICK_COUNT = 1700
 CREATE_INITIAL_STATE = lambda : PopulationState(DEFAULT_POPULATION, DEFAULT_SICK_COUNT)
 # </INITIAL_STATE>
 
