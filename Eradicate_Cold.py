@@ -154,7 +154,7 @@ class PopulationState:
         # Code that assumes that half of the sick people
         # recover at the end of every week. This is randomized
         # to ensure that a particular pattern is not followed everytime.
-        recovered_count = math.ceil(new_state.sick_people_count / 3)
+        recovered_count = math.ceil(new_state.sick_people_count / 2)
 
         # Update sick and healthy counts due to Recovery
         new_sick_count -= recovered_count
@@ -166,7 +166,7 @@ class PopulationState:
                 # Assume People have 21 interactions a week, with standard deviation 6
                 num_interactions = math.floor(random.gauss(21, 6))
                 sick_percent = new_state.get_sick_percent()
-                sick_interactions = math.floor(num_interactions * sick_percent)
+                sick_interactions = math.ceil(num_interactions * sick_percent/100)
 
                 recovery_probability = 1 - risk_factor ** sick_interactions
                 if recovery_probability < RECOVERY_THRESHOLD:
@@ -248,8 +248,8 @@ class Operator:
 # </COMMON_DATA>
 
 # <INITIAL_STATE>
-DEFAULT_POPULATION = 1000
-DEFAULT_SICK_COUNT = 700
+DEFAULT_POPULATION = 50000
+DEFAULT_SICK_COUNT = 17000
 CREATE_INITIAL_STATE = lambda : PopulationState(DEFAULT_POPULATION, DEFAULT_SICK_COUNT)
 # </INITIAL_STATE>
 
