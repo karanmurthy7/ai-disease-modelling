@@ -149,14 +149,14 @@ class PopulationState:
         # Code that assumes that half of the sick people
         # recover at the end of every week. This is randomized
         # to ensure that a particular pattern is not followed everytime.
-        recovered_people_count = math.floor(new_state.sick_people_count/2)
-        new_sick_count = new_state.sick_people_count - recovered_people_count
+        recovered_count = math.floor(new_state.sick_people_count/2)
+
 
 
         #PART 2 : Some healthy people get infected
-        new_healthy_count = new_state.healthy_people_count
+        infected_count = 0
         for i in range(0, new_state.healthy_people_count):
-                #Assume People have 21 interactions a week, with standar deviation 6
+                #Assume People have 21 interactions a week, with standard deviation 6
                 num_interactions = math.floor(random.gauss(21,6))
                 sick_percent = new_state.get_sick_percent()
                 sick_interactions = math.floor(num_interactions*sick_percent)
@@ -165,27 +165,36 @@ class PopulationState:
                 if recovery_probability < RECOVERY_THRESHOLD:
                     # Classify the person as sick if his/her
                     # recovery probability is less than the threshold.
-                    new_healthy_count -=1
+                    infected_count+=1
+
+        #PART 2.5 : Update healthy and sick people count
+        new_sick_count = new_state.sick_people_count - recovered_count + infected_count
+        new_healthy_count = new_state.healthy_people_count + recovered_count - infected_count
+        new_state.adjust_population(new_sick_count, new_healthy_count)
 
 
         #PART 3 : Some people die (Healthy or sick, doesn't matter)
         death_count = math.ceil(new_state.population_count * MORTALITY_RATE)
-        for i in range(0, death_count):
-            random_number = random.randint(0, len(self.people_list))
-            del self.people_list[random_number]
-        
-        for i in range(0, POPULATION_GROWTH_RATE):
-            self.people_list.append(Person(False))
-         
-        sick_people_count = 0
-        for i in range(0, len(self.people_list)):
-            if self.people_list[i].is_sick:
-                sick_people_count += 1
+        who_dies = set()
+        while(len(who_dies) < death_count):
+            random_number = random.randint(0, len(new_state.people_list))
+            if who_dies.__contains__(random_number) ==False:
+                who_dies.add(random_number)
+
+
+        #PART 4: Some healthy people are born
+
 
         # PART 4 : Adjust Healthy count, Sick count, population, and people list based on recovery, infection
         new_state.adjust_population(new_sick_count, new_healthy_count)
 
         return new_state
+
+    def delete_list_elements(self, population, index_list):
+        index_list = set(index_list)
+        result = [value for index, value in enumerate(value_list) if index not in index_list]
+        return result
+
 
 
 def goal_test(s):
