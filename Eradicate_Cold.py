@@ -218,7 +218,14 @@ class PopulationState:
         result = [value for index, value in enumerate(self.people_list) if index not in index_list]
         return result
 
+def h_manhattan(s):
+    # Ideal afftected population should be less than
+    # 10 percent of the total population.
+    ideal_affected_population = s.population_count * 0.09
+    manhattan_dist = abs(s.sick_people_count - ideal_affected_population)
+    return manhattan_dist
 
+HEURISTICS = {'h_manhattan':h_manhattan}
 
 def goal_test(s):
     '''If More than 90% of the population is affected'''
@@ -261,9 +268,13 @@ class Operator:
 # </COMMON_DATA>
 
 # <INITIAL_STATE>
-DEFAULT_POPULATION = 5000
-DEFAULT_SICK_COUNT = 1700
-CREATE_INITIAL_STATE = lambda : PopulationState(DEFAULT_POPULATION, DEFAULT_SICK_COUNT)
+DEFAULT_POPULATION = 100
+DEFAULT_SICK_COUNT = 50
+CREATE_INITIAL_STATE = (lambda population_count = None, sick_people_count = None : 
+                        PopulationState(population_count, sick_people_count)
+                        if population_count is not None and sick_people_count is not None 
+                        else PopulationState(DEFAULT_POPULATION, DEFAULT_SICK_COUNT))
+                        
 # </INITIAL_STATE>
 
 # <OPERATORS>
