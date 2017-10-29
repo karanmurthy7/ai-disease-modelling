@@ -20,6 +20,7 @@ This is a model that aims to eradicate cold from the world.
 # </METADATA>
 
 import math
+import random
 # <COMMON_CODE>
 # The probability of a person getting sick is 50% on an average.
 BASE_RISK_FACTOR = 0.5
@@ -35,12 +36,12 @@ EFFECT_SLEEPING_WELL = 0.05
 RECOVERY_THRESHOLD = 0.80
 YEARLY_POPULATION_GROWTH_RATE = 0.012
 NUMBER_OF_YEARS = 10
-POPULATION_GROWTH_RATE = math.exp(YEARLY_POPULATION_GROWTH_RATE * NUMBER_OF_YEARS)
+POPULATION_GROWTH_RATE = math.floor(math.exp(YEARLY_POPULATION_GROWTH_RATE * NUMBER_OF_YEARS))
 MORTALITY_RATE = 0.0095
 class Person:
     
-    def __init__(self, sickness_status):
-        self.sickness_status = sickness_status
+    def __init__(self, is_sick):
+        self.is_sick = is_sick
 
 
 # This class PopulationState holds metrics such as  
@@ -49,16 +50,17 @@ class Person:
 # people who die after every week.
 class PopulationState:
     
-    def __init__(self, population_count, sick_people_count):
+    def __init__(self, population_count, sick_people_count, people_list = []):
         self.population_count = population_count
         self.sick_people_count = sick_people_count
         self.healthy_people_count = population_count - sick_people_count
         self.people_list = []
-        for i in range(0, sick_people_count):
-            self.people_list.append(Person(True))
-            
-        for i in range(0, self.healthy_people_count):
-            self.people_list.append(Person(False))
+        if people_list == []:
+            for i in range(0, sick_people_count):
+                self.people_list.append(Person(True))
+                
+            for i in range(0, self.healthy_people_count):
+                self.people_list.append(Person(False))
             
     def __hash__(self):
         return (self.__str__()).__hash__()
@@ -94,10 +96,11 @@ class PopulationState:
             return True
         return False
     
-    def copy(self):
+    def copy(self, population_count, sick_people_count, people_list):
         # Used to construct deep copies
-        new_state = PopulationState(self.population_count, 
-                                    self.sick_people_count)
+        new_state = PopulationState(population_count, 
+                                    sick_people_count,
+                                    people_list)
         return new_state
     
     # habits is essentially a tuple containing variables (1,-1)
@@ -110,32 +113,47 @@ class PopulationState:
         risk_factor = BASE_RISK_FACTOR + EFFECT_WASHING_HANDS * wash_hands 
         + EFFECT_SLEEPING_WELL * sleep_well
         sick_people_count = 0
-        healthy_people_count = 0
-        diagnosed_people_count = 0
+        people_list = self.people_list
         
-        for i in range(0, len(self.people_list)):
-            if self.people_list[i].sickness_status:
+        for i in range(0, len(people_list)):
+            if people_list[i].is_sick:
                 print('Person is sick')
                 sick_people_count += 1
             else:
                 print('Person is healthy')
                 sick_interactions = random.randint(1, 10)
                 recovery_probability = 1 - risk_factor ** sick_interactions
-                if recovery_probability > RECOVERY_THRESHOLD:
-                    healthy_people_count += 1
-                else:
-                    diagnosed_people_count += 1
+                if recovery_probability < RECOVERY_THRESHOLD:
+                    # Classify the person as sick if his/her
+                    # recovery probability is less than the threshold.
+                    people_list[i] = Person(True)
                 
         # Code that assumes that half of the sick people
-        # recover at the end of every week.
+        # recover at the end of every week. This is randomized
+        # to ensure that a particular pattern is not followed everytime.
         recovered_people_count = math.floor(sick_people_count/2)
-        sick_people_count -= recovered_people_count
-        healthy_people_count += recovered_people_count
-        population_count = healthy_people_count + sick_people_count
-        population_count -= math.floor(population_count * MORTALITY_RATE)
-        new_state = self.copy()
-        new_state.sick_people_count = sick_people_count
-        new_state.population_count = math.floor(population_count * POPULATION_GROWTH_RATE)
+        for i in range(0, len(recovered_people_count)):
+            random_number = random.randint(0, len(people_list))
+            if people_list[random_number].is_sick:
+                people_list[random_number] = Person(False)
+        
+        population_count = len(people_list)
+        death_count = math.floor(population_count * MORTALITY_RATE)
+        for i in range(0, death_count):
+            random_number = random.randint(0, len(people_list))
+            del people_list[random_number]
+        
+        for i in range(0, POPULATION_GROWTH_RATE):
+            people_list.append(Person(False))
+         
+        # Re-initializing sick people count to get the updated count
+        # of sick and healthy people
+        sick_people_count = 0
+        for i in range(0, len(people_list)):
+            if people_list[i].is_sick:
+                sick_people_count += 1
+                   
+        new_state = self.copy(len(people_list), sick_people_count, people_list)
         return new_state     
 
 # </COMMON_CODE>
