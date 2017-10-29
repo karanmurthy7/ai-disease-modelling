@@ -154,7 +154,7 @@ class PopulationState:
         # Code that assumes that half of the sick people
         # recover at the end of every week. This is randomized
         # to ensure that a particular pattern is not followed everytime.
-        recovered_count = math.ceil(new_state.sick_people_count / 2)
+        recovered_count = math.ceil(new_state.sick_people_count / 3)
 
         # Update sick and healthy counts due to Recovery
         new_sick_count -= recovered_count
@@ -217,9 +217,9 @@ class PopulationState:
 
 
 def goal_test(s):
-    '''If More than 99% of the population is affected'''
+    '''If More than 90% of the population is affected'''
     sick_percent = s.calc_percentage(s.sick_people_count, s.population_count)
-    if float(sick_percent) > 99 or float(sick_percent) < 1:
+    if float(sick_percent) > 90 or float(sick_percent) < 10:
         return True
     else:
         return False
@@ -248,8 +248,8 @@ class Operator:
 # </COMMON_DATA>
 
 # <INITIAL_STATE>
-DEFAULT_POPULATION = 100
-DEFAULT_SICK_COUNT = 40
+DEFAULT_POPULATION = 1000
+DEFAULT_SICK_COUNT = 700
 CREATE_INITIAL_STATE = lambda : PopulationState(DEFAULT_POPULATION, DEFAULT_SICK_COUNT)
 # </INITIAL_STATE>
 
