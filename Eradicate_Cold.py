@@ -20,6 +20,19 @@ This is a model that aims to eradicate cold from the world.
 # </METADATA>
 
 # <COMMON_CODE>
+# The probability of a person getting sick is 50% on an average.
+BASE_RISK_FACTOR = 0.5
+
+# EFFECT_WASHING_HANDS means that washing hands can reduce the probability of 
+# a person getting sick by 10%.
+EFFECT_WASHING_HANDS = 0.1
+
+# EFFECT_SLEEPING_WELL means that sleeping well can reduce the probability of 
+# a person getting sick by 5%.
+EFFECT_SLEEPING_WELL = 0.05
+
+SICKNESS_THRESHOLD = 0.80
+
 class Person:
     
     def __init__(self, sickness_status):
@@ -80,19 +93,48 @@ class PopulationState:
         if self.healthy_people_count > 0:
             return True
         return False
-
-    # habits is essentially a tuple containing boolean 
-    # variables to indicate whether a person washes hands and
-    # sleeps well.
+    
+    def copy(self):
+        # Used to construct deep copies
+        new_state = PopulationState(self.population_count, 
+                                    self.sick_people_count, 
+                                    self.death_count,
+                                    self.birth_count)
+        return new_state
+    
+    # habits is essentially a tuple containing variables (1,-1)
+    # to indicate whether a person washes hands and sleeps well.
+    # For instance, 1 = Washes Hands, -1 = Does not wash hands
     def move(self, habits):
         '''This computes a new state resulting from a legal move.'''
         wash_hands = habits[0]
         sleep_well = habits[1]
-        for person in self.people_list:
-            if person.sickness_status:
+        risk_factor = BASE_RISK_FACTOR + EFFECT_WASHING_HANDS * wash_hands 
+        + EFFECT_SLEEPING_WELL * sleep_well
+        sick_people_count = 0
+        healthy_people_count = 0
+        diagnosed_people_count = 0
+        
+        for i in range(0, len(self.people_list)):
+            if self.people_list[i].sickness_status:
                 print('Person is sick')
+                sick_people_count += 1
             else:
                 print('Person is healthy')
+                sick_interactions = random.randint(1, 10)
+                sickness_probability = 1 - risk_factor ** sick_interactions
+                if sickness_probability > SICKNESS_THRESHOLD:
+                    diagnosed_people_count += 1
+                else:
+                    healthy_people_count += 1
+                
+        # Code that assumes that half of the sick people
+        # recover at the end of every week.
+        recovered_people_count = math.floor(sick_people_count/2)
+        sick_people_count -= recovered_people_count
+        healthy_people_count += recovered_people_count
+        new_state = self.copy()
+        new_state.sick_people_count = sick_people_count 
         return new_state     
 
 # </COMMON_CODE>
