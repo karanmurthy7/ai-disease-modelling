@@ -121,7 +121,7 @@ class PopulationState:
                 print('Person is healthy')
                 sick_interactions = random.randint(1, 10)
                 recovery_probability = 1 - risk_factor ** sick_interactions
-                if sickness_probability > RECOVERY_THRESHOLD:
+                if recovery_probability > RECOVERY_THRESHOLD:
                     healthy_people_count += 1
                 else:
                     diagnosed_people_count += 1
