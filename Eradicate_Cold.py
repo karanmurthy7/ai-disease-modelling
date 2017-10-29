@@ -61,7 +61,6 @@ class PopulationState:
 
     def build_people_list(self):
         people_list = []
-
         for i in range(0, self.sick_people_count):
             people_list.append(Person(True))
 
@@ -145,13 +144,21 @@ class PopulationState:
         risk_factor = BASE_RISK_FACTOR + (EFFECT_WASHING_HANDS * wash_hands) \
                       + (EFFECT_SLEEPING_WELL * sleep_well)
 
+
+        #PART 0: Keep track of sick and healthy count before any process
+        new_sick_count = new_state.sick_people_count
+        new_healthy_count = new_state.healthy_people_count
+
+
         #PART 1 : Some sick people recover
         # Code that assumes that half of the sick people
         # recover at the end of every week. This is randomized
         # to ensure that a particular pattern is not followed everytime.
         recovered_count = math.floor(new_state.sick_people_count/2)
 
-
+        #Update sick and healthy counts due to Recovery
+        new_sick_count -= recovered_count
+        new_healthy_count +=recovered_count
 
         #PART 2 : Some healthy people get infected
         infected_count = 0
@@ -167,32 +174,43 @@ class PopulationState:
                     # recovery probability is less than the threshold.
                     infected_count+=1
 
-        #PART 2.5 : Update healthy and sick people count
-        new_sick_count = new_state.sick_people_count - recovered_count + infected_count
-        new_healthy_count = new_state.healthy_people_count + recovered_count - infected_count
-        new_state.adjust_population(new_sick_count, new_healthy_count)
+        #Update sick and healthy counts due to Infection
+        new_sick_count += infected_count
+        new_healthy_count -= recovered_count
 
 
         #PART 3 : Some people die (Healthy or sick, doesn't matter)
-        death_count = math.ceil(new_state.population_count * MORTALITY_RATE)
+        death_count = math.ceil(new_state.population_count * MORTALITY_RATE) #CEIL instead of Floor, so that minimum 1 person dies
         who_dies = set()
+        sick_died =0
+        healthy_died =0
         while(len(who_dies) < death_count):
-            random_number = random.randint(0, len(new_state.people_list))
-            if who_dies.__contains__(random_number) ==False:
-                who_dies.add(random_number)
+            index = random.randint(0, new_state.population_count-1)   # if no -1, index out of bounds
+            if who_dies.__contains__(index) ==False:
+                if new_state.people_list[index] ==True:
+                    sick_died+=1
+                else: healthy_died +=1
+                who_dies.add(index)
+
+        # Update sick and healthy counts due to Death
+        new_sick_count -= sick_died
+        new_healthy_count -= healthy_died
 
 
-        #PART 4: Some healthy people are born
+        #PART 4 : Some healthy people are born
+        birth_count = math.ceil(new_state.population_count * POPULATION_GROWTH_RATE)
+        # Update healthy counts due to Birth
+        new_healthy_count +=birth_count
 
 
-        # PART 4 : Adjust Healthy count, Sick count, population, and people list based on recovery, infection
+        # PART 5 : Reset New State's Healthy count, Sick count, population, and people list based on recovery, infection, birth and death
         new_state.adjust_population(new_sick_count, new_healthy_count)
 
         return new_state
 
-    def delete_list_elements(self, population, index_list):
+    def delete_list_elements(self, index_list):
         index_list = set(index_list)
-        result = [value for index, value in enumerate(value_list) if index not in index_list]
+        result = [value for index, value in enumerate(self.people_list) if index not in index_list]
         return result
 
 
