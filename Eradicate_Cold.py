@@ -19,6 +19,7 @@ This is a model that aims to eradicate cold from the world.
 '''
 # </METADATA>
 
+import math
 # <COMMON_CODE>
 # The probability of a person getting sick is 50% on an average.
 BASE_RISK_FACTOR = 0.5
@@ -34,7 +35,7 @@ EFFECT_SLEEPING_WELL = 0.05
 SICKNESS_THRESHOLD = 0.80
 YEARLY_POPULATION_GROWTH_RATE = 0.012
 NUMBER_OF_YEARS = 10
-POPULATION_GROWTH_RATE = math.exp(YEARLY_POPULATION_GROWTH_RATE * 10)
+POPULATION_GROWTH_RATE = math.exp(YEARLY_POPULATION_GROWTH_RATE * NUMBER_OF_YEARS)
 MORTALITY_RATE = 0.0095
 class Person:
     
@@ -96,9 +97,7 @@ class PopulationState:
     def copy(self):
         # Used to construct deep copies
         new_state = PopulationState(self.population_count, 
-                                    self.sick_people_count, 
-                                    self.death_count,
-                                    self.birth_count)
+                                    self.sick_people_count)
         return new_state
     
     # habits is essentially a tuple containing variables (1,-1)
