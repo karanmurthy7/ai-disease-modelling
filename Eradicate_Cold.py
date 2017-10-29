@@ -32,7 +32,10 @@ EFFECT_WASHING_HANDS = 0.1
 EFFECT_SLEEPING_WELL = 0.05
 
 SICKNESS_THRESHOLD = 0.80
-
+YEARLY_POPULATION_GROWTH_RATE = 0.012
+NUMBER_OF_YEARS = 10
+POPULATION_GROWTH_RATE = math.exp(YEARLY_POPULATION_GROWTH_RATE * 10)
+MORTALITY_RATE = 0.0095
 class Person:
     
     def __init__(self, sickness_status):
@@ -45,11 +48,9 @@ class Person:
 # people who die after every week.
 class PopulationState:
     
-    def __init__(self, population_count, sick_people_count, death_count, birth_count):
+    def __init__(self, population_count, sick_people_count):
         self.population_count = population_count
         self.sick_people_count = sick_people_count
-        self.death_count = death_count
-        self.birth_count = birth_count
         self.healthy_people_count = population_count - sick_people_count
         self.people_list = []
         for i in range(0, sick_people_count):
@@ -78,8 +79,6 @@ class PopulationState:
     def __eq__(self, state2):
         if (self.population_count == state2.population_count and 
         self.sick_people_count == state2.sick_people_count and
-        self.death_count == state2.death_count and
-        self.birth_count == state2.birth_count and
         self.healthy_people_count == state2.healthy_people_count):
             return True
         
@@ -133,8 +132,11 @@ class PopulationState:
         recovered_people_count = math.floor(sick_people_count/2)
         sick_people_count -= recovered_people_count
         healthy_people_count += recovered_people_count
+        population_count = healthy_people_count + sick_people_count
+        population_count -= math.floor(population_count * MORTALITY_RATE)
         new_state = self.copy()
-        new_state.sick_people_count = sick_people_count 
+        new_state.sick_people_count = sick_people_count
+        new_state.population_count = math.floor(population_count * POPULATION_GROWTH_RATE)
         return new_state     
 
 # </COMMON_CODE>
