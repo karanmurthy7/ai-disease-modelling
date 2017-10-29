@@ -22,7 +22,7 @@ This is a model that aims to eradicate cold from the world.
 import math
 import random
 # <COMMON_CODE>
-# The probability of a person getting sick is 50% on an average.
+# The probability of a person getting sick is % on an average.
 BASE_RISK_FACTOR = 0.5
 
 # EFFECT_WASHING_HANDS means that washing hands can reduce the probability of 
@@ -70,8 +70,14 @@ class PopulationState:
         return (self.__str__()).__hash__()
     
     def calc_percentage(self, num, total):
-        return str((num / total) * 100)
-    
+        return (num / total) * 100
+
+    def get_sick_percent(self):
+        return self.calc_percentage(self.sick_people_count, self.population_count)
+
+    def get_healthy_percent(self):
+        return self.calc_percentage(self.healthy_people_count, self.population_count)
+
     def __str__(self):
         # Produces a textual description of a state.
 
@@ -79,11 +85,11 @@ class PopulationState:
 
         text += "\nSick People Count / Percentage = " +\
                 str(self.sick_people_count) + " / " +\
-                self.calc_percentage(self.sick_people_count, self.population_count)
+                str(self.calc_percentage(self.sick_people_count, self.population_count))
 
         text += "\nHealthy People Count / Percentage = " +\
                 str(self.healthy_people_count) + " / " +\
-                self.calc_percentage(self.healthy_people_count, self.population_count)
+                str(self.calc_percentage(self.healthy_people_count, self.population_count))
         return text
     
     def __eq__(self, state2):
@@ -117,22 +123,22 @@ class PopulationState:
     # For instance, 1 = Washes Hands, -1 = Does not wash hands
     def move(self, habits):
         '''This computes a new state resulting from a legal move.'''
+
+        #Assume that these habits are prevalent across the whole world
         wash_hands = habits[0]
         sleep_well = habits[1]
-        risk_factor = BASE_RISK_FACTOR + EFFECT_WASHING_HANDS * wash_hands \
-                      + EFFECT_SLEEPING_WELL * sleep_well
 
-        sick_people_count = self.sick_people_count
-        people_list = self.people_list
-        
-        for i in range(0, len(people_list)):
-            if people_list[i].is_sick:
+        #Common Risk Factor based on global habits
+        risk_factor = BASE_RISK_FACTOR + (EFFECT_WASHING_HANDS * wash_hands) \
+                      + (EFFECT_SLEEPING_WELL * sleep_well)
+
+        for i in range(0, self.population_count):
+            if self.people_list[i].is_sick:
                 print('Person is sick')
-                #sick_people_count += 1
             else:
                 print('Person is healthy')
                 num_interactions = math.floor(random.gauss(21,6))
-                sick_percent = float(self.calc_percentage(self.sick_people_count, self.population_count))
+                sick_percent = self.get_sick_percent()
                 sick_interactions = math.floor(num_interactions*sick_percent)
 
 
@@ -140,35 +146,36 @@ class PopulationState:
                 if recovery_probability < RECOVERY_THRESHOLD:
                     # Classify the person as sick if his/her
                     # recovery probability is less than the threshold.
-                    people_list[i] = Person(True)
+                    self.people_list[i] = Person(True)
                 
         # Code that assumes that half of the sick people
         # recover at the end of every week. This is randomized
         # to ensure that a particular pattern is not followed everytime.
-        recovered_people_count = math.floor(sick_people_count/2)
+        recovered_people_count = math.floor(self.sick_people_count/2)
         for i in range(0, recovered_people_count):
-            random_number = random.randint(0, len(people_list))
-            if people_list[random_number].is_sick:
-                people_list[random_number] = Person(False)
+            random_number = random.randint(0, len(self.people_list))
+            if self.people_list[random_number].is_sick:
+                self.people_list[random_number] = Person(False)
         
-        population_count = len(people_list)
+        population_count = len(self.people_list)
         death_count = math.floor(population_count * MORTALITY_RATE)
         for i in range(0, death_count):
-            random_number = random.randint(0, len(people_list))
-            del people_list[random_number]
+            random_number = random.randint(0, len(self.people_list))
+            del self.people_list[random_number]
         
         for i in range(0, POPULATION_GROWTH_RATE):
-            people_list.append(Person(False))
+            self.people_list.append(Person(False))
          
         # Re-initializing sick people count to get the updated count
         # of sick and healthy people
         sick_people_count = 0
-        for i in range(0, len(people_list)):
-            if people_list[i].is_sick:
+        for i in range(0, len(self.people_list)):
+            if self.people_list[i].is_sick:
                 sick_people_count += 1
                    
-        new_state = self.copy(len(people_list), sick_people_count, people_list)
+        new_state = self.copy()
         return new_state
+
 
 def goal_test(s):
     '''If More than 99% of the population is affected'''
