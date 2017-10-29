@@ -53,19 +53,32 @@ class Person:
 # people who die after every week.
 class PopulationState:
     
-    def __init__(self, population_count, sick_people_count, people_list = []):
+    def __init__(self, population_count, sick_people_count):
         self.population_count = population_count
         self.sick_people_count = sick_people_count
         self.healthy_people_count = population_count - sick_people_count
-        self.people_list = people_list
+        self.people_list = self.build_people_list()
 
-        if people_list == []:
-            for i in range(0, sick_people_count):
-                self.people_list.append(Person(True))
-                
-            for i in range(0, self.healthy_people_count):
-                self.people_list.append(Person(False))
-            
+    def build_people_list(self):
+        people_list = []
+
+        for i in range(0, self.sick_people_count):
+            people_list.append(Person(True))
+
+        for i in range(0, self.healthy_people_count):
+            people_list.append(Person(False))
+
+        return people_list
+
+    def adjust_population(self, sick_count, healthy_count):
+        # Re-initializing sick people count to get the updated count
+        # of sick and healthy people
+
+        self.population_count = sick_count + healthy_count
+        self.sick_people_count = sick_count
+        self.healthy_people_count = healthy_count
+        self.people_list = self.build_people_list()
+
     def __hash__(self):
         return (self.__str__()).__hash__()
     
@@ -114,8 +127,7 @@ class PopulationState:
     def copy(self):
         # Used to construct deep copies
         new_state = PopulationState(self.population_count,
-                                    self.sick_people_count,
-                                    self.people_list)
+                                    self.sick_people_count)
         return new_state
     
     # habits is essentially a tuple containing variables (1,-1)
@@ -124,6 +136,7 @@ class PopulationState:
     def move(self, habits):
         '''This computes a new state resulting from a legal move.'''
 
+        new_state = self.copy()
         #Assume that these habits are prevalent across the whole world
         wash_hands = habits[0]
         sleep_well = habits[1]
@@ -132,33 +145,31 @@ class PopulationState:
         risk_factor = BASE_RISK_FACTOR + (EFFECT_WASHING_HANDS * wash_hands) \
                       + (EFFECT_SLEEPING_WELL * sleep_well)
 
-        for i in range(0, self.population_count):
-            if self.people_list[i].is_sick:
-                print('Person is sick')
-            else:
-                print('Person is healthy')
-                num_interactions = math.floor(random.gauss(21,6))
-                sick_percent = self.get_sick_percent()
-                sick_interactions = math.floor(num_interactions*sick_percent)
+        #PART 1 : Some sick people recover
+        # Code that assumes that half of the sick people
+        # recover at the end of every week. This is randomized
+        # to ensure that a particular pattern is not followed everytime.
+        recovered_people_count = math.floor(new_state.sick_people_count/2)
+        new_sick_count = new_state.sick_people_count - recovered_people_count
 
+
+        #PART 2 : Some healthy people get infected
+        new_healthy_count = new_state.healthy_people_count
+        for i in range(0, new_state.healthy_people_count):
+                #Assume People have 21 interactions a week, with standar deviation 6
+                num_interactions = math.floor(random.gauss(21,6))
+                sick_percent = new_state.get_sick_percent()
+                sick_interactions = math.floor(num_interactions*sick_percent)
 
                 recovery_probability = 1 - risk_factor ** sick_interactions
                 if recovery_probability < RECOVERY_THRESHOLD:
                     # Classify the person as sick if his/her
                     # recovery probability is less than the threshold.
-                    self.people_list[i] = Person(True)
-                
-        # Code that assumes that half of the sick people
-        # recover at the end of every week. This is randomized
-        # to ensure that a particular pattern is not followed everytime.
-        recovered_people_count = math.floor(self.sick_people_count/2)
-        for i in range(0, recovered_people_count):
-            random_number = random.randint(0, len(self.people_list))
-            if self.people_list[random_number].is_sick:
-                self.people_list[random_number] = Person(False)
-        
-        population_count = len(self.people_list)
-        death_count = math.floor(population_count * MORTALITY_RATE)
+                    new_healthy_count -=1
+
+
+        #PART 3 : Some people die (Healthy or sick, doesn't matter)
+        death_count = math.ceil(new_state.population_count * MORTALITY_RATE)
         for i in range(0, death_count):
             random_number = random.randint(0, len(self.people_list))
             del self.people_list[random_number]
@@ -166,21 +177,21 @@ class PopulationState:
         for i in range(0, POPULATION_GROWTH_RATE):
             self.people_list.append(Person(False))
          
-        # Re-initializing sick people count to get the updated count
-        # of sick and healthy people
         sick_people_count = 0
         for i in range(0, len(self.people_list)):
             if self.people_list[i].is_sick:
                 sick_people_count += 1
-                   
-        new_state = self.copy()
+
+        # PART 4 : Adjust Healthy count, Sick count, population, and people list based on recovery, infection
+        new_state.adjust_population(new_sick_count, new_healthy_count)
+
         return new_state
 
 
 def goal_test(s):
     '''If More than 99% of the population is affected'''
     percent = s.calc_percentage(s.sick_people_count,s.population_count)
-    if float(percent) > 99:
+    if float(percent) > 99 or float(percent) < 1:
         return True
     else:
         return False
