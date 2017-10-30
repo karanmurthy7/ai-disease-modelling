@@ -27,7 +27,7 @@ BASE_RISK_FACTOR = 0.5
 
 # EFFECT_WASHING_HANDS means that washing hands can reduce the probability of 
 # a person getting sick by 10%.
-EFFECT_WASHING_HANDS = 0.1
+EFFECT_WASHING_HANDS = 0.15
 
 # EFFECT_SLEEPING_WELL means that sleeping well can reduce the probability of 
 # a person getting sick by 5%.
@@ -158,7 +158,7 @@ class PopulationState:
         # Code that assumes that half of the sick people
         # recover at the end of every week. This is randomized
         # to ensure that a particular pattern is not followed everytime.
-        recovered_count = math.ceil(new_state.sick_people_count / 2)
+        recovered_count = math.ceil(new_state.sick_people_count / 3)
 
         # Update sick and healthy counts due to Recovery
         new_sick_count -= recovered_count
