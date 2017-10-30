@@ -158,7 +158,7 @@ class PopulationState:
         # Code that assumes that one-third of the sick people
         # recover at the end of every week. This is randomized
         # to ensure that a particular pattern is not followed everytime.
-        recovered_count = math.ceil(new_state.sick_people_count / 3)
+        recovered_count = math.floor(new_state.sick_people_count / random.randint(2, 5))
 
         # Update sick and healthy counts due to Recovery
         new_sick_count -= recovered_count
