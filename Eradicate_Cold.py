@@ -95,7 +95,7 @@ class PopulationState:
         return self.calc_percentage(self.healthy_people_count, self.population_count)
 
     def __str__(self):
-        # Produces a textual description of a state.
+        # Produces a textual and visual description of a state.
         text ="----------------------------\n"
         text += "WORLD POPULATION : " + str(self.population_count) + "\n"
         text += "HEALTHY count    : " + str(self.sick_people_count) + " ({0:.2f}%)".format(self.get_sick_percent()) + "\n"
@@ -106,22 +106,15 @@ class PopulationState:
         num_X = self.get_sick_percent()/10
         XO_str =""
         for i in range(10):
-            if i<num_X:
-                text+="X"
+            if i<=num_X:
+                XO_str+="X "
             else:
-                text+="0"
+                XO_str+="0 "
 
+        text += "(X = sick O = healthy)\n\n"
         text += XO_str
-        text += "\n(X = sick O = healthy)"
         text += "\n----------------------------"
 
-        #text += "\nSick People Count / Percentage = " + \
-        #        str(self.sick_people_count) + " / " + \
-        #        "{0:.2f}".format(self.get_sick_percent()) +"%"
-
-        #text += "\nHealthy People Count / Percentage = " + \
-        #        str(self.healthy_people_count) + " / " + \
-        #        "{0:.2f}".format(self.get_healthy_percent()) + "%"
         return text
     
     def __eq__(self, state2):
