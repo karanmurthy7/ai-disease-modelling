@@ -96,16 +96,32 @@ class PopulationState:
 
     def __str__(self):
         # Produces a textual description of a state.
+        text ="----------------------------\n"
+        text += "WORLD POPULATION : " + str(self.population_count) + "\n"
+        text += "HEALTHY count    : " + str(self.sick_people_count) + " ({0:.2f}%)".format(self.get_sick_percent()) + "\n"
+        text += "SICK count       : " + str(self.healthy_people_count) + " ({0:.2f}%)".format(self.get_healthy_percent()) + "\n"
 
-        text = "Population Count = " + str(self.population_count)
+        text += "\nRepresentative diagram (scaled to 10 humans)\n"
 
-        text += "\nSick People Count / Percentage = " + \
-                str(self.sick_people_count) + " / " + \
-                "{0:.2f}".format(self.calc_percentage(self.sick_people_count, self.population_count)) +"%"
+        num_X = self.get_sick_percent()/10
+        XO_str =""
+        for i in range(10):
+            if i<num_X:
+                text+="X"
+            else:
+                text+="0"
 
-        text += "\nHealthy People Count / Percentage = " + \
-                str(self.healthy_people_count) + " / " + \
-                "{0:.2f}".format(self.calc_percentage(self.healthy_people_count, self.population_count)) + "%"
+        text += XO_str
+        text += "\n(X = sick O = healthy)"
+        text += "\n----------------------------"
+
+        #text += "\nSick People Count / Percentage = " + \
+        #        str(self.sick_people_count) + " / " + \
+        #        "{0:.2f}".format(self.get_sick_percent()) +"%"
+
+        #text += "\nHealthy People Count / Percentage = " + \
+        #        str(self.healthy_people_count) + " / " + \
+        #        "{0:.2f}".format(self.get_healthy_percent()) + "%"
         return text
     
     def __eq__(self, state2):
