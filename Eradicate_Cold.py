@@ -5,6 +5,8 @@ Vaibhavi Rangarajan, CSE 415, Autumn 2017, University of Washington
 UWNetID: vaibhavi
 Instructor:  S. Tanimoto.
 '''
+from _collections import defaultdict
+from email.policy import default
 
 # <METADATA>
 QUIET_VERSION = "0.1"
@@ -27,7 +29,7 @@ BASE_RISK_FACTOR = 0.5
 
 # EFFECT_WASHING_HANDS means that washing hands can reduce the probability of 
 # a person getting sick by 10%.
-EFFECT_WASHING_HANDS = 0.15
+EFFECT_WASHING_HANDS = 0.25
 
 # EFFECT_SLEEPING_WELL means that sleeping well can reduce the probability of 
 # a person getting sick by 5%.
@@ -57,11 +59,12 @@ class Person:
 # people who die after every week.
 class PopulationState:
     
-    def __init__(self, population_count, sick_people_count):
+    def __init__(self, population_count, sick_people_count, habits):
         self.population_count = population_count
         self.sick_people_count = sick_people_count
         self.healthy_people_count = population_count - sick_people_count
         self.people_list = self.build_people_list()
+        self.habits = habits
 
     def build_people_list(self):
         people_list = []
@@ -96,20 +99,29 @@ class PopulationState:
 
     def __str__(self):
         # Produces a textual and visual description of a state.
-        text ="----------------------------\n"
+        text = "----------------------------\n"
+        if self.habits['wash_hands'] == 1 and self.habits['sleep_well'] == 1:
+            text += "People washed their hands and slept well \n"
+        elif self.habits['wash_hands'] == 1 and self.habits['sleep_well'] == -1:
+            text += "People washed their hands but did not sleep well \n"
+        elif self.habits['wash_hands'] == -1 and self.habits['sleep_well'] == 1:
+            text += "People did not wash their hands but slept well \n"
+        elif self.habits['wash_hands'] == -1 and self.habits['sleep_well'] == -1:
+            text += "People neither washed their hands nor slept well \n"
+            
         text += "WORLD POPULATION : " + str(self.population_count) + "\n"
         text += "SICK count    : " + str(self.sick_people_count) + " ({0:.2f}%)".format(self.get_sick_percent()) + "\n"
         text += "HEALTHY count : " + str(self.healthy_people_count) + " ({0:.2f}%)".format(self.get_healthy_percent()) + "\n"
 
         text += "\nRepresentative diagram (scaled to 10 humans)\n"
 
-        num_X = self.get_sick_percent()/10
-        XO_str =""
+        num_X = self.get_sick_percent() / 10
+        XO_str = ""
         for i in range(10):
-            if i<num_X:
-                XO_str+="X "
+            if i < num_X:
+                XO_str += "X "
             else:
-                XO_str+="0 "
+                XO_str += "0 "
 
         text += "(X = sick O = healthy)\n\n"
         text += XO_str
@@ -139,7 +151,8 @@ class PopulationState:
     def copy(self):
         # Used to construct deep copies
         new_state = PopulationState(self.population_count,
-                                    self.sick_people_count)
+                                    self.sick_people_count,
+                                    defaultdict(int))
         return new_state
     
     # habits is essentially a tuple containing variables (1,-1)
@@ -152,7 +165,12 @@ class PopulationState:
         # Assume that these habits are prevalent across the whole world
         wash_hands = habits[0]
         sleep_well = habits[1]
-
+        
+        # Storing the operators in the state to analyse the 
+        # path that will be followed to reach goal state.
+        new_state.habits['wash_hands'] = wash_hands
+        new_state.habits['sleep_well'] = sleep_well
+        
         # Common Risk Factor based on global habits
         risk_factor = BASE_RISK_FACTOR + (EFFECT_WASHING_HANDS * wash_hands) \
                       + (EFFECT_SLEEPING_WELL * sleep_well)
@@ -182,7 +200,8 @@ class PopulationState:
                 sick_interactions = math.ceil(num_interactions * sick_percent / 100)
 
                 recovery_probability = 1 - risk_factor ** sick_interactions
-                if recovery_probability < RECOVERY_THRESHOLD:
+                is_infected = random.choices([0, 1], cum_weights = [recovery_probability, 1])
+                if is_infected[0] == 1:
                     # Classify the person as sick if his/her
                     # recovery probability is less than the threshold.
                     infected_count += 1
@@ -279,10 +298,10 @@ class Operator:
 # <INITIAL_STATE>
 DEFAULT_POPULATION = 100
 DEFAULT_SICK_COUNT = 50
-CREATE_INITIAL_STATE = (lambda population_count = None, sick_people_count = None : 
-                        PopulationState(population_count, sick_people_count)
+CREATE_INITIAL_STATE = (lambda population_count=None, sick_people_count=None : 
+                        PopulationState(population_count, sick_people_count, defaultdict(int))
                         if population_count is not None and sick_people_count is not None 
-                        else PopulationState(DEFAULT_POPULATION, DEFAULT_SICK_COUNT))
+                        else PopulationState(DEFAULT_POPULATION, DEFAULT_SICK_COUNT, defaultdict(int)))
                         
 # </INITIAL_STATE>
 
