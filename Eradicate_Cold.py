@@ -101,11 +101,11 @@ class PopulationState:
 
         text += "\nSick People Count / Percentage = " + \
                 str(self.sick_people_count) + " / " + \
-                str(self.calc_percentage(self.sick_people_count, self.population_count))
+                "{0:.2f}".format(self.calc_percentage(self.sick_people_count, self.population_count)) +"%"
 
         text += "\nHealthy People Count / Percentage = " + \
                 str(self.healthy_people_count) + " / " + \
-                str(self.calc_percentage(self.healthy_people_count, self.population_count))
+                "{0:.2f}".format(self.calc_percentage(self.healthy_people_count, self.population_count)) + "%"
         return text
     
     def __eq__(self, state2):
