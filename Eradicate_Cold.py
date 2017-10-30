@@ -98,15 +98,15 @@ class PopulationState:
         # Produces a textual and visual description of a state.
         text ="----------------------------\n"
         text += "WORLD POPULATION : " + str(self.population_count) + "\n"
-        text += "HEALTHY count    : " + str(self.sick_people_count) + " ({0:.2f}%)".format(self.get_sick_percent()) + "\n"
-        text += "SICK count       : " + str(self.healthy_people_count) + " ({0:.2f}%)".format(self.get_healthy_percent()) + "\n"
+        text += "SICK count    : " + str(self.sick_people_count) + " ({0:.2f}%)".format(self.get_sick_percent()) + "\n"
+        text += "HEALTHY count : " + str(self.healthy_people_count) + " ({0:.2f}%)".format(self.get_healthy_percent()) + "\n"
 
         text += "\nRepresentative diagram (scaled to 10 humans)\n"
 
         num_X = self.get_sick_percent()/10
         XO_str =""
         for i in range(10):
-            if i<=num_X:
+            if i<num_X:
                 XO_str+="X "
             else:
                 XO_str+="0 "
