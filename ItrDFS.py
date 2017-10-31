@@ -11,10 +11,12 @@ import sys
 if sys.argv == [''] or len(sys.argv) < 2:
     #  import EightPuzzle as Problem
     import Eradicate_Cold as Problem
+    initial_state = Problem.CREATE_INITIAL_STATE()
 else:
     import importlib
-
     Problem = importlib.import_module(sys.argv[1])
+    inputs = importlib.import_module(sys.argv[2].split('.')[0])
+    initial_state = Problem.CREATE_INITIAL_STATE(inputs.population_count, inputs.sick_people_count)
 
 print("\nWelcome to ItrDFS")
 COUNT = None
@@ -22,7 +24,6 @@ BACKLINKS = {}
 
 
 def runDFS():
-    initial_state = Problem.CREATE_INITIAL_STATE()
     print("Initial State:")
     print(initial_state)
     global COUNT, BACKLINKS

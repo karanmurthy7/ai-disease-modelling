@@ -27,22 +27,25 @@ import random
 # The probability of a person getting sick is % on an average.
 BASE_RISK_FACTOR = 0.5
 
-# EFFECT_WASHING_HANDS means that washing hands can reduce the probability of 
-# a person getting sick by 10%.
+# EFFECT_WASHING_HANDS means that washing hands can affect (increase / decrease) the probability of 
+# a person getting sick by 20%.
 EFFECT_WASHING_HANDS = 0.25
 
-# EFFECT_SLEEPING_WELL means that sleeping well can reduce the probability of 
+# EFFECT_SLEEPING_WELL means that sleeping well can affect (increase / decrease) the probability of 
 # a person getting sick by 5%.
 EFFECT_SLEEPING_WELL = 0.05
 
-#
+# RECOVERY_THRESHOLD defines the minimum immunity level required to combat cold.
 RECOVERY_THRESHOLD = 0.90
 
-#
+# The yearly population growth is 0.12 %
+# The formula for the population growth rate requires the number of years
+# for which the predicated population needs to be calculated.
 YEARLY_POPULATION_GROWTH_RATE = 0.012
 NUMBER_OF_YEARS = 10
 POPULATION_GROWTH_RATE = math.floor(math.exp(YEARLY_POPULATION_GROWTH_RATE * NUMBER_OF_YEARS))
-#
+
+# This represents the current world mortality rate.
 MORTALITY_RATE = 0.0095
 
 # Boolean variable to display the message depending
@@ -270,10 +273,13 @@ def goal_test(s):
 
 
 def goal_message(s):
+    message = "\n********************************************************************\n"
     if HAS_VIRUS_WON:
-        message = "Cold has taken over the world!"
+        message += "END: Oh no! Common Cold has taken over (90% of) the world!"
     else:
-        message = "With cold under control, the World is a better place to live."
+        message = "END: With cold under control (<10%), the World is a better place to live."
+    message += "\n********************************************************************\n"
+
     return message
 
 class Operator:
